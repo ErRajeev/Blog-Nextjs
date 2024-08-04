@@ -1,24 +1,24 @@
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../../../..//components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import LoginForm from "@/components/auth/login/LoginForm";
+import SignupForm from "@/components/auth/signup/SignupForm";
 
 export default function Page() {
   return (
     <>
-      <Tabs defaultValue="account" className="w-[400px]">
-        <TabsList>
-          <TabsTrigger value="account">Account</TabsTrigger>
-          <TabsTrigger value="password">Password</TabsTrigger>
-        </TabsList>
-        <TabsContent value="account">
-          Make changes to your account here.
-        </TabsContent>
-        <TabsContent value="password">Change your password here.</TabsContent>
-      </Tabs>
-      <h2>jhvgcjk</h2>
+      <main className="flex min-h-screen flex-col items-center justify-between p-20">
+        <Tabs defaultValue="login" className="w-[400px]">
+          <TabsList>
+            <TabsTrigger value="login">Login</TabsTrigger>
+            <TabsTrigger value="signup">SignUp</TabsTrigger>
+          </TabsList>
+          <TabsContent value="login">
+            <LoginForm />
+          </TabsContent>
+          <TabsContent value="signup">
+            <SignupForm />
+          </TabsContent>
+        </Tabs>
+      </main>
     </>
   );
 }
