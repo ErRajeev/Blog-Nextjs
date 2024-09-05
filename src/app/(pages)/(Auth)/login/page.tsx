@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import LoginForm from "@/components/auth/login/LoginForm";
-import SignupForm from "@/components/auth/signup/SignupForm";
+import Login from "@/components/auth/login/Login";
+import SignupForm from "@/components/auth/signup/Signup";
 
 export default function Page() {
   return (
@@ -12,7 +12,7 @@ export default function Page() {
             <TabsTrigger value="signup">SignUp</TabsTrigger>
           </TabsList>
           <TabsContent value="login">
-            <LoginForm />
+            <Login />
           </TabsContent>
           <TabsContent value="signup">
             <SignupForm />

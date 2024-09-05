@@ -30,9 +30,9 @@ export const Page: React.FC = (): JSX.Element => {
 
     try {
       await dbConnect();
-      const user = await User.findOne({ email });
-      if (user) {
-        return new Error("User allready Exist");
+      const userExists = await User.exists({ email });
+      if (userExists) {
+        // return new Error("User allready Exist");
       }
 
       const hashedPassword = await hash(password, 10);
@@ -41,6 +41,8 @@ export const Page: React.FC = (): JSX.Element => {
         email,
         password: hashedPassword,
       });
+      console.log("-----------------\n=========================");
+
       // redirect("/");
     } catch (error) {
       console.error("Error during signup:", error);

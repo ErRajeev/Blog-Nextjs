@@ -9,6 +9,6 @@ const userSchema = new Schema({
 }, { collection: 'users' }); // Explicitly set the collection name
 
 // Check if the model already exists to avoid recompilation during hot reloads
-const User = models.User || model('User', userSchema);
+const User = models?.User || model('User', userSchema);
 
 export default User;

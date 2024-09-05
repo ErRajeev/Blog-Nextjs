@@ -1,18 +1,22 @@
-import Image from "next/image";
-import { auth } from "./auth";
 import { redirect } from "next/navigation";
+import { auth } from "./auth";
+import LogoutBtn from "@/components/client/LogoutBtn";
 
 export default async function Home() {
   const session = await auth();
   const user = session?.user;
-  console.log(user);
+  // console.log(user);
   if (!user) {
-    redirect("/api/auth/signin");
-  }
+    redirect("/login");
 
+    // console.log("MONGODB_URI:", process.env.MONGODB_URI);
+  }
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1>Home</h1>
-    </main>
+    <>
+      <main className="flex min-h-screen flex-col items-center justify-between p-24">
+        main page
+        <LogoutBtn />
+      </main>
+    </>
   );
 }
