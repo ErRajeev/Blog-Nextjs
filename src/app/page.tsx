@@ -1,21 +1,17 @@
-import { redirect } from "next/navigation";
-import { auth } from "./auth";
-import LogoutBtn from "@/components/client/LogoutBtn";
+"use client";
+import { useAuth } from "./context/AuthContext";
+import { useRouter } from "next/navigation";
 
-export default async function Home() {
-  const session = await auth();
-  const user = session?.user;
-  // console.log(user);
-  if (!user) {
-    redirect("/login");
+export default function Home() {
+  const { user } = useAuth();
+  const router = useRouter();
 
-    // console.log("MONGODB_URI:", process.env.MONGODB_URI);
-  }
+  if (!user) router.push("/login");
+
   return (
     <>
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
-        main page
-        <LogoutBtn />
+        main page {user?.name}
       </main>
     </>
   );

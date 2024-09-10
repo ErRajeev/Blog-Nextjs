@@ -1,3 +1,9 @@
+import { signIn } from "@/app/auth";
+import SignupForm from "@/components/client/SignupForm";
+import SvgFacebookLogo from "@/components/svgs/SvgFacebookLogo";
+import SvgGitHubLogo from "@/components/svgs/SvgGitHubLogo";
+import SvgGoogleLogo from "@/components/svgs/SvgGoogleLogo";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,50 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import dbConnect from "@/lib/DataBase/utils";
-import User from "@/app/api/models/userModel";
-import { hash } from "bcryptjs";
-import { redirect } from "next/navigation";
 
 export const Page: React.FC = (): JSX.Element => {
-  const handleSubmit = async (formData: FormData) => {
-    "use server";
-
-    const name = formData.get("name") as string | undefined;
-    const email = formData.get("email") as string | undefined;
-    const password = formData.get("password") as string | undefined;
-
-    if (!name || !password || !email) {
-      return new Error("Enter the Details");
-    }
-
-    // Db connect
-
-    try {
-      await dbConnect();
-      const userExists = await User.exists({ email });
-      if (userExists) {
-        // return new Error("User allready Exist");
-      }
-
-      const hashedPassword = await hash(password, 10);
-      await User.create({
-        name,
-        email,
-        password: hashedPassword,
-      });
-      console.log("-----------------\n=========================");
-
-      // redirect("/");
-    } catch (error) {
-      console.error("Error during signup:", error);
-      // alert("Error during signup. Please try again.");
-    }
-  };
-
   return (
     <>
       <Card>
@@ -58,37 +22,57 @@ export const Page: React.FC = (): JSX.Element => {
           <CardDescription>Please Enter Details</CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={handleSubmit} className="flex flex-col gap-4">
-            <div className="grid w-full max-w-sm items-center gap-1.5">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                type="text"
-                id="name"
-                placeholder="Your Name"
-                name="name"
-              />
-            </div>
-            <div className="grid w-full max-w-sm items-center gap-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input type="email" id="email" placeholder="Email" name="email" />
-            </div>
-            <div className="grid w-full max-w-sm items-center gap-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                type="password"
-                id="password"
-                placeholder="Password"
-                name="password"
-              />
-            </div>
-            <Button type="submit">SignUp</Button>
-          </form>
+          <SignupForm />
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <p>or</p>
-          <form action="">
-            <Button variant="outline">SignUp With Google</Button>
-          </form>
+          <div className="flex justify-between gap-x-10">
+            <form
+              action={async () => {
+                "use server";
+                await signIn("google");
+              }}
+            >
+              <Button
+                variant="outline"
+                type="submit"
+                className="flex items-center gap-2"
+                size={"icon"}
+              >
+                <SvgGoogleLogo />
+              </Button>
+            </form>
+            <form
+              action={async () => {
+                "use server";
+                await signIn("google");
+              }}
+            >
+              <Button
+                variant="outline"
+                type="submit"
+                className="flex items-center gap-2"
+                size={"icon"}
+              >
+                <SvgGitHubLogo />
+              </Button>
+            </form>
+            <form
+              action={async () => {
+                "use server";
+                await signIn("google");
+              }}
+            >
+              <Button
+                variant="outline"
+                type="submit"
+                className="flex items-center gap-2"
+                size={"icon"}
+              >
+                <SvgFacebookLogo />
+              </Button>
+            </form>
+          </div>
         </CardFooter>
       </Card>
     </>

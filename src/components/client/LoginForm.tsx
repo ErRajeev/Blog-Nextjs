@@ -9,30 +9,36 @@ import { useRouter } from "next/navigation";
 
 export default function LoginForm(): JSX.Element {
   const router = useRouter();
+
+  const handleLogin = async (formData: FormData) => {
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    if (!email || !password)
+      return toast.error("Plese enter email or password");
+
+    const toastId = toast.loading("Logging...");
+    const error = await CredentialLogin(email, password);
+
+    if (!error) {
+      toast.success("Login Successfull!", {
+        id: toastId,
+      });
+      router.replace("/");
+    } else {
+      toast.error(String(error), {
+        id: toastId,
+      });
+    }
+  };
+
   return (
     <>
       <form
         className="flex flex-col gap-4"
-        action={async (formData) => {
-          const email = formData.get("email") as string;
-          const password = formData.get("password") as string;
-          if (!email || !password)
-            return toast.error("plese enter email or password");
-
-          const toastId = toast.loading("Logging...");
-
-          const error = await CredentialLogin(email, password);
-
-          if (!error) {
-            toast.success("Login Successfull!", {
-              id: toastId,
-            });
-            router.replace("/");
-          } else {
-            toast.error(String(error), {
-              id: toastId,
-            });
-          }
+        onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.currentTarget);
+          handleLogin(formData);
         }}
       >
         <div className="grid w-full max-w-sm items-center gap-1.5">
