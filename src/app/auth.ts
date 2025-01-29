@@ -90,11 +90,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.picture = user.image ?? "";
         token.emailVerified = (user as any).emailVerified ?? null;
       }
-      console.log("JWT token in auth", token)
       return token;
     },
     async session({ session, token }) {
-      console.log("JWT token in session callback", token)
       session.user = {
         id: token.id as string,
         name: token.name as string,
@@ -102,20 +100,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         image: token.picture as string, 
         emailVerified: token.emailVerified as Date | null,
       };
-      console.log("Session in auth", session);  // Add logging
       return session;
     },
   },
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`, // You can customize the cookie name if needed
-      options: {
-        httpOnly: true,    // Ensures the cookie is sent only over HTTP(S)
-        secure: process.env.NODE_ENV === "production", // Use secure cookies in production (HTTPS)
-        sameSite: "lax",   // Adjust this according to your needs (lax or strict)
-      },
-    }
-  }
+  // cookies: {
+  //   sessionToken: {
+  //     name: `next-auth.session-token`, // You can customize the cookie name if needed
+  //     options: {
+  //       httpOnly: true,    // Ensures the cookie is sent only over HTTP(S)
+  //       secure: process.env.NODE_ENV === "production", // Use secure cookies in production (HTTPS)
+  //       sameSite: "lax",   // Adjust this according to your needs (lax or strict)
+  //     },
+  //   }
+  // }
 });
 
 // callbacks: {
