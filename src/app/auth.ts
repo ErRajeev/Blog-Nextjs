@@ -107,7 +107,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   cookies: {
     sessionToken: {
-      name: `_vercel_jwt`, // You can customize the cookie name if needed
+      name: `next-auth.session-token`, // You can customize the cookie name if needed
       options: {
         httpOnly: true,    // Ensures the cookie is sent only over HTTP(S)
         secure: process.env.NODE_ENV === "production", // Use secure cookies in production (HTTPS)
