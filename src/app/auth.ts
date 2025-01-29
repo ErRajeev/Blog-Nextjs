@@ -82,6 +82,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return true; // Allow other providers to pass through
     },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id ?? "";
+        token.name = user.name ?? "";
+        token.email = user.email ?? "";
+        token.picture = user.image ?? "";
+        token.emailVerified = (user as any).emailVerified ?? null;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.user = {
+        id: token.id as string,
+        name: token.name as string,
+        email: token.email as string,
+        image: token.picture as string, 
+        emailVerified: token.emailVerified as Date | null,
+      };
+      return session;
+    },
   },
 });
 
