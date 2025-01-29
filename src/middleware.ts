@@ -3,14 +3,14 @@ import { NextResponse, NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 export default async function middleware(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET , cookieName : "next-auth.session-token"});
 
   console.log("token in middleware", token);
   
   const { nextUrl } = req;
   const protectedRoutes = ["/contact", "/profile"];
   const openRoutes = ["/home", "/blog"];
- 
+
   const isAuthenticated = !!token;  
 
   // Handle open routes
