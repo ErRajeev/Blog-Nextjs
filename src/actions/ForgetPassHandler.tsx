@@ -4,7 +4,7 @@ import Otp from "@/app/api/models/otpModel";
 import User from "@/app/api/models/userModel";
 import dbConnect from "@/lib/DataBase/utils";
 import { hash } from "bcryptjs";
-import { randomInt } from "crypto";
+import crypto from "crypto";
 import nodemailer from "nodemailer";
 
 type ValidationResult = {
@@ -12,28 +12,22 @@ type ValidationResult = {
   message: string;
 };
 
-const CredentialSignup = async (
-  name: string,
-  email: string,
-  password: string
-) => {
-  if (!name || !password || !email) {
-    return "Enter the Details";
-  }
+const CredentialForgetPass = async (email: string) => {
+  if (!email) return "Enter the Details";
 
   try {
     await dbConnect();
     const userExists = await User.exists({ email });
-    if (userExists) return "User already exists";
+    if (!userExists) return "No account found!";
     generateAndStoreOtp(email);
     return true;
   } catch (error) {
-    return "Error during signup. Please try again."; // Return string instead of an Error instance
+    // console.error("Error during signup:", error);
+    return "Error during signup. Please try again.";
   }
 };
 
-const validateSignupOtp = async (
-  name: string,
+const validateForgetPassOtp = async (
   email: string,
   password: string,
   otp: string
@@ -58,12 +52,8 @@ const validateSignupOtp = async (
     await otpRecord.save();
 
     const hashedPassword = await hash(password, 10);
-    await User.create({
-      name,
-      email,
-      password: hashedPassword,
-    });
-    return { success: true, message: "An Account has been created." };
+    await User.updateOne({ email }, { $set: { password: hashedPassword } });
+    return { success: true, message: "Password reset." };
   } catch (error) {
     return {
       success: false,
@@ -73,7 +63,7 @@ const validateSignupOtp = async (
 };
 
 const generateAndStoreOtp = async (email: string): Promise<string> => {
-  const otp = randomInt(100000, 999999).toString(); // Generate secure 6-digit OTP
+  const otp = crypto.randomInt(100000, 999999).toString(); // Generate secure 6-digit OTP
 
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // Set expiration (5 minutes)
 
@@ -92,7 +82,7 @@ const generateAndStoreOtp = async (email: string): Promise<string> => {
   const mailOptions = {
     from: process.env.ADMIN_SENDER_EMAIL,
     to: email,
-    subject: "Wellcome to Blogy",
+    subject: "Password Reset OTP",
     html: `<html><body><h3>Your OTP is: ${otp}</h3></body></html>`,
   };
 
@@ -100,4 +90,4 @@ const generateAndStoreOtp = async (email: string): Promise<string> => {
   return otp;
 };
 
-export { CredentialSignup, validateSignupOtp };
+export { CredentialForgetPass, validateForgetPassOtp };

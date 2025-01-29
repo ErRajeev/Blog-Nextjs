@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { toast } from "sonner";
-import { CredentialSignup, validateOtp } from "@/actions/SignupHandler";
+import { CredentialSignup, validateSignupOtp } from "@/actions/SignupHandler";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 
 export default function SignupForm(): JSX.Element {
   const [isOtp, setIsOtp] = useState(false);
@@ -34,31 +34,30 @@ export default function SignupForm(): JSX.Element {
     }
 
     const toastId = toast.loading("Signing...");
-    const error = await CredentialSignup(name, email, password);
+    const res = await CredentialSignup(name, email, password);
 
-    if (!error) {
+    if (res === true) {
       setUserDetails({ name, email, password }); // Store user details
       setIsOtp(true); // Move to OTP input step
       toast.success("OTP sent to your email!", { id: toastId });
     } else {
-      toast.error(String(error), { id: toastId });
+      toast.error(String(res), { id: toastId });
     }
   };
 
   const handleOtpSubmit = async () => {
+    const toastId = toast.loading("Logging...");
     if (userDetails) {
       const { name, email, password } = userDetails;
-      validateOtp(name, email, password, otp)
-        .then((isValid) => {
-          if (isValid) {
-            toast.success("Signup successful!");
+      validateSignupOtp(name, email, password, otp)
+        .then((response) => {
+          if (response.success) {
+            toast.success(response.message, { id: toastId });
             router.replace("/");
-          } else {
-            toast.error("invalid otp");
           }
         })
         .catch((error) => {
-          console.log(error);
+          toast.error(String(error.message), { id: toastId });
         });
     }
   };
@@ -98,7 +97,7 @@ export default function SignupForm(): JSX.Element {
           <Button type="submit">SignUp</Button>
         </form>
       ) : (
-        <div className="flex flex-col justify-center align-middle">
+        <div className="flex justify-center align-middle">
           <InputOTP
             maxLength={6}
             className="grid w-full max-w-sm items-center gap-1.5"

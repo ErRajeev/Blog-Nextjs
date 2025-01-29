@@ -1,5 +1,4 @@
 "use client";
-import { useAuth } from "@/app/context/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,19 +8,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Session } from "next-auth";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { JSX, SVGProps } from "react";
-import LogoutBtn from "../client/LogoutBtn";
-import SvgUserLoginin from "../svgs/SvgUserLogin";
 import { ModeToggle } from "../ThemeIcon";
 
-export default function Component() {
-  const { user } = useAuth();
+export default function Navbar() {
+  const { data }: { data: Session | null } = useSession();
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b">
       <div className="container flex items-center justify-between h-16 px-4 md:px-6">
-        <Link href="#" className="flex items-center gap-2" prefetch={false}>
+        <Link href="/" className="flex items-center gap-2" prefetch={false}>
           <MountainIcon className="h-6 w-6" />
           <span className="text-lg font-bold">Blog</span>
         </Link>
@@ -57,71 +55,70 @@ export default function Component() {
           </Link>
         </nav>
 
-        {/* Right Side: Mode Toggle and User Menu */}
         <div className="flex items-center gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                {user ? (
-                  <>
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.image} />
-                      <AvatarFallback>JD</AvatarFallback>
-                    </Avatar>
-                  </>
-                ) : (
-                  <Link href="/login">
-                    <SvgUserLoginin />
-                  </Link>
-                )}
-                <span className="sr-only">Toggle user menu</span>
-              </Button>
+              {data?.user && (
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage
+                      src={data.user.image || ""}
+                      alt={data.user.name || "User"}
+                    />
+                    <AvatarFallback>
+                      {data.user.name?.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="sr-only">Toggle user menu</span>
+                </Button>
+              )}
             </DropdownMenuTrigger>
-            {user && (
+            {data?.user && (
               <DropdownMenuContent align="end">
                 <div className="flex items-center gap-2 p-2">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user?.image} />
-                    <AvatarFallback>JD</AvatarFallback>
+                    <AvatarImage
+                      src={data.user.image || ""}
+                      alt={data.user.name || "User"}
+                    />
+                    <AvatarFallback>
+                      {data.user.name?.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="grid gap-0.5 leading-none">
-                    <div className="font-semibold">{user?.name}</div>
+                    <div className="font-semibold">{data.user.name}</div>
                     <div className="text-sm text-muted-foreground">
-                      {user?.email}
+                      {data.user.email || "No email available"}
                     </div>
                   </div>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link
-                    href="#"
+                    href="/profile"
                     className="flex items-center gap-2"
                     prefetch={false}
                   >
-                    <div className="h-4 w-4" />
                     <span>Profile</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link
-                    href="#"
+                    href="/setting"
                     className="flex items-center gap-2"
                     prefetch={false}
                   >
-                    <div className="h-4 w-4" />
                     <span>Settings</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Link
-                    href="#"
+                <DropdownMenuItem asChild>
+                  <p
                     className="flex items-center gap-2"
-                    prefetch={false}
+                    onClick={() => signOut()}
                   >
-                    <div className="h-4 w-4" />
-                    <LogoutBtn />
-                  </Link>
+                    Logout
+                  </p>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             )}
@@ -133,9 +130,7 @@ export default function Component() {
   );
 }
 
-function MountainIcon(
-  props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
-) {
+function MountainIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}

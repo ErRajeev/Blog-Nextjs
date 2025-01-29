@@ -1,5 +1,5 @@
 import GoogleLogin from "@/components/auth/googleLogin/GoogleLogin";
-import LoginForm from "@/components/client/LoginForm";
+import ForgetPassword from "@/components/client/ForgetPassword";
 import {
   Card,
   CardContent,
@@ -14,11 +14,11 @@ export const Page: React.FC = (): JSX.Element => {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Login</CardTitle>
-          <CardDescription>Please Enter Login Details</CardDescription>
+          <CardTitle>Forget Password</CardTitle>
+          <CardDescription>Please Enter Email</CardDescription>
         </CardHeader>
         <CardContent>
-          <LoginForm />
+          <ForgetPassword />
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <p>or</p>
@@ -28,5 +28,4 @@ export const Page: React.FC = (): JSX.Element => {
     </>
   );
 };
-
 export default Page;

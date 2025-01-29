@@ -1,8 +1,6 @@
-'use server'
-
 import mongoose from 'mongoose';
 
-const MONGODB_URI : string = process.env.MONGODB_URI!;
+const MONGODB_URI: string = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) {
   throw new Error(
@@ -10,10 +8,6 @@ if (!MONGODB_URI) {
   );
 }
 
-/**
- * Global is used here to maintain a cached connection across hot reloads in development.
- * This prevents connections growing exponentially during API Route usage.
- */
 let cached = global.mongoose;
 
 if (!cached) {
@@ -21,25 +15,32 @@ if (!cached) {
 }
 
 export default async function dbConnect() {
-  if (cached.conn) {
-    // If the connection is cached, return it
-    return cached.conn;
-  }
+  if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
-    // If no connection promise is cached, create a new one
     const opts = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       bufferCommands: false,
+      dbName: 'blogy', // Replace with your database name
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
+    cached.promise = mongoose
+      .connect(MONGODB_URI, opts)
+      .then((mongoose) => {
+        console.log('MongoDB connected successfully');
+        return mongoose;
+      })
+      .catch((error) => {
+        console.error('MongoDB connection error:', error.message);
+        throw new Error('Failed to connect to MongoDB');
+      });
   }
-  cached.conn = await cached.promise; // Await the promise to resolve and cache the connection
-  console.log("DB connected successfully");
-  
-  return cached.conn;
+  try {
+    cached.conn = await cached.promise;
+    return cached.conn;
+  } catch (error) {
+    cached.promise = null; // Reset the promise in case of failure
+    throw error;
+  }
 }

@@ -7,9 +7,13 @@ const nextConfig = {
     return [
       {
         source: "/signup",
-        destination: "/login",
+        destination: "/auth",
         permanent: true,
-        // statusCode: 301,
+      },
+      {
+        source: "/login",
+        destination: "/auth",
+        permanent: true,
       },
     ];
   },

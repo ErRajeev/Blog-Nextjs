@@ -1,16 +1,18 @@
 "use client";
 
+import { CredentialLogin } from "@/actions/LoginHandler";
+import { getSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { toast } from "sonner";
-import { CredentialLogin } from "@/actions/LoginHandler";
-import { useRouter } from "next/navigation";
 
 export default function LoginForm(): JSX.Element {
   const router = useRouter();
+  // const { handleLogin } = useSessionContext;
 
-  const handleLogin = async (formData: FormData) => {
+  const handleLogins = async (formData: FormData) => {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     if (!email || !password)
@@ -20,6 +22,7 @@ export default function LoginForm(): JSX.Element {
     const error = await CredentialLogin(email, password);
 
     if (!error) {
+      await getSession();
       toast.success("Login Successfull!", {
         id: toastId,
       });
@@ -38,7 +41,7 @@ export default function LoginForm(): JSX.Element {
         onSubmit={(e) => {
           e.preventDefault();
           const formData = new FormData(e.currentTarget);
-          handleLogin(formData);
+          handleLogins(formData);
         }}
       >
         <div className="grid w-full max-w-sm items-center gap-1.5">
