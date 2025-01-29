@@ -1,17 +1,17 @@
-// src/middleware.ts
+
 import { NextResponse, NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 export default async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.AUTH_SECRET });
 
-  console.log("token", token);
+  // console.log("token", token);
   
   const { nextUrl } = req;
   const protectedRoutes = ["/contact", "/profile"];
   const openRoutes = ["/home", "/blog"];
 
-  const isAuthenticated = !!token;
+  const isAuthenticated = !!token;  
 
   // Handle open routes
   if (openRoutes.includes(nextUrl.pathname)) {
