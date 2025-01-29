@@ -43,6 +43,7 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  
   if (protectedRoutes.includes(req.nextUrl.pathname) && !token) {
     return NextResponse.redirect(new URL("/auth", req.url));
   }
