@@ -3,7 +3,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 export default async function middleware(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET , cookieName : "next-auth.session-token"});
 
   console.log("token in middleware", token);
   
@@ -27,16 +27,11 @@ export default async function middleware(req: NextRequest) {
 }
 
 // import { NextResponse, NextRequest } from "next/server";
-// // import { getToken } from "next-auth/jwt";
 
 // export default async function middleware(req: NextRequest) {
-//   console.log("Headers in request:", req.headers); // Debugging
-
-//   // const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET, raw: true  });
-//   // const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET, cookieName: "_vercel_jwt" });
 //   const token = req.cookies.get("next-auth.session-token")?.value;
 
-//   console.log("Token in middleware:", token); // Check if it's retrieved
+//   console.log("Token in middleware:", token);
 
 //   const protectedRoutes = ["/contact", "/profile"];
 //   const openRoutes = ["/home", "/blog"];
