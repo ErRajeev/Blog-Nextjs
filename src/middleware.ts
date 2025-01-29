@@ -32,7 +32,7 @@ import { getToken } from "next-auth/jwt";
 export default async function middleware(req: NextRequest) {
   console.log("Headers in request:", req.headers); // Debugging
 
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET, raw: true  });
 
   console.log("Token in middleware:", token); // Check if it's retrieved
 
@@ -43,7 +43,7 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  
+
   if (protectedRoutes.includes(req.nextUrl.pathname) && !token) {
     return NextResponse.redirect(new URL("/auth", req.url));
   }
