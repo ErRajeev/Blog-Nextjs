@@ -18,15 +18,13 @@ export default async function dbConnect() {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
-    const opts = {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      bufferCommands: false,
-      dbName: 'blogy', // Replace with your database name
-    };
+    // const opts = {
+    //   bufferCommands: false,
+    //   dbName: 'blogy', // Replace with your database name
+    // };
 
     cached.promise = mongoose
-      .connect(MONGODB_URI, opts)
+      .connect(MONGODB_URI)
       .then((mongoose) => {
         console.log('MongoDB connected successfully');
         return mongoose;

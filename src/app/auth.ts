@@ -106,6 +106,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
   },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`, // You can customize the cookie name if needed
+      options: {
+        httpOnly: true,    // Ensures the cookie is sent only over HTTP(S)
+        secure: process.env.NODE_ENV === "production", // Use secure cookies in production (HTTPS)
+        sameSite: "lax",   // Adjust this according to your needs (lax or strict)
+      },
+    }
+  }
 });
 
 // callbacks: {
