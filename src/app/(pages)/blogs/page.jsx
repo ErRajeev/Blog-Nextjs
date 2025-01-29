@@ -14,7 +14,7 @@ export default async function Page() {
   //   await decode({
   //     token: cook?.value,
   //     salt: cook?.name,
-  //     secret: process.env.AUTH_SECRET,
+  //     secret: process.env.NEXTAUTH_SECRET,
   //   })
   // );
 

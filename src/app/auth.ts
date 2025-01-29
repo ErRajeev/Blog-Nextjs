@@ -102,7 +102,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       };
       return session;
     },
+    
   },
+  secret: process.env.NEXTAUTH_SECRET,
   // cookies: {
   //   sessionToken: {
   //     name: `next-auth.session-token`, // You can customize the cookie name if needed
@@ -127,7 +129,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 //     return token;
 //   },
 // },
-// secret: process.env.AUTH_SECRET,
+// secret: process.env.NEXTAUTH_SECRET,
 // });
 
 
