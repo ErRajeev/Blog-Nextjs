@@ -105,6 +105,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     
   },
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true, 
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`, // You can customize the cookie name if needed
