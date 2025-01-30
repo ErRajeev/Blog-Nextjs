@@ -1,11 +1,11 @@
 "use server";
 
+import { transporter } from "@/actions/transporter";
 import Otp from "@/app/api/models/otpModel";
 import User from "@/app/api/models/userModel";
 import dbConnect from "@/lib/DataBase/utils";
 import { hash } from "bcryptjs";
 import { randomInt } from "crypto";
-import nodemailer from "nodemailer";
 
 type ValidationResult = {
   success: boolean;
@@ -79,15 +79,6 @@ const generateAndStoreOtp = async (email: string): Promise<string> => {
 
   // Store OTP in the database
   await Otp.create({ email, otp, expiresAt });
-
-  // Send OTP via email
-  const transporter = nodemailer.createTransport({
-    service: process.env.SERVICE,
-    auth: {
-      user: process.env.ADMIN_SENDER_EMAIL,
-      pass: process.env.APP_PASSWORD,
-    },
-  });
 
   const mailOptions = {
     from: process.env.ADMIN_SENDER_EMAIL,
