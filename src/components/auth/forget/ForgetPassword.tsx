@@ -15,7 +15,7 @@ export const Page: React.FC = (): JSX.Element => {
       <Card>
         <CardHeader>
           <CardTitle>Forget Password</CardTitle>
-          <CardDescription>Please Enter Email</CardDescription>
+          <CardDescription>Please Enter Credential</CardDescription>
         </CardHeader>
         <CardContent>
           <ForgetPassword />

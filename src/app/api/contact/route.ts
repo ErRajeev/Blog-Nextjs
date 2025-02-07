@@ -1,7 +1,7 @@
-import { auth } from "@/app/auth"; 
-import { NextResponse } from "next/server";
 import { transporter } from "@/actions/transporter";
+import { auth } from "@/app/auth";
 import dbConnect from "@/lib/DataBase/utils";
+import { NextResponse } from "next/server";
 import Contact from "../models/contactFormModel";
 interface ContactDataType {
   name: string;
@@ -9,6 +9,8 @@ interface ContactDataType {
   phone: string;
   message: string;
 }
+
+ const ADMIN_SENDER_EMAIL = process.env.ADMIN_SENDER_EMAIL
 
 export async function POST(request: Request) {
   if (request.method !== "POST") {
@@ -38,7 +40,6 @@ export async function POST(request: Request) {
     const dbResponse = await storeContacts(contactData);
     
     if (!dbResponse.success) {
-      console.log("efdfv");
       return new NextResponse(
         
         JSON.stringify({ message: "We will contact you soon." }),
@@ -48,7 +49,7 @@ export async function POST(request: Request) {
     
     const emailResponse = await handleSendMail(contactData);
 
-    if (!emailResponse.ok) {
+    if (!emailResponse.success) {
       return new NextResponse(
         JSON.stringify({ message: "Email sending failed" }),
         { status: 500 }
@@ -61,7 +62,6 @@ export async function POST(request: Request) {
     );
 
   } catch (error) {
-    console.error("Form submission error:", error);
     return new NextResponse(
       JSON.stringify({ message: "Error processing form submission." }),
       { status: 500 }
@@ -69,9 +69,9 @@ export async function POST(request: Request) {
   }
 }
 
-async function handleSendMail(data: ContactDataType) {
+async function handleSendMail(data: ContactDataType): Promise<{success : boolean}> {
   const mailOptions = {
-    from: process.env.ADMIN_SENDER_EMAIL,
+    from: ADMIN_SENDER_EMAIL,
     to: data.email,
     subject: "Welcome to Blogy",
     html: `<html>
@@ -86,10 +86,9 @@ async function handleSendMail(data: ContactDataType) {
   };
   try {
     await transporter.sendMail(mailOptions);
-    return { ok: true };
+    return { success: true };
   } catch (error) {
-    console.error("Error sending email:", error);
-    return { ok: false };
+    return { success: false };
   }
 }
 

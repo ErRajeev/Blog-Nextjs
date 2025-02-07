@@ -3,62 +3,81 @@
 import { CredentialLogin } from "@/actions/LoginHandler";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
 export default function LoginForm(): JSX.Element {
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
-  // const { handleLogin } = useSessionContext;
 
-  const handleLogins = async (formData: FormData) => {
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    if (!email || !password)
-      return toast.error("Plese enter email or password");
+  const handleLogin = async (formData: FormData) => {
+    const email = formData.get("email")?.toString().trim();
+    const password = formData.get("password")?.toString().trim();
 
-    const toastId = toast.loading("Logging...");
-    const error = await CredentialLogin(email, password);
+    if (!email || !password) return toast.error("Plese enter credentials");
+    setLoading(true);
+    const toastId = toast.loading("Logging in...");
 
-    if (!error) {
-      await getSession();
-      toast.success("Login Successfull!", {
+    try {
+      const response: { success: boolean; message: string } =
+        await CredentialLogin(email, password);
+
+      if (response.success) {
+        await getSession();
+        toast.success(response.message, { id: toastId });
+        router.replace("/");
+      }
+      if (!response.success) {
+        toast.error(response.message, { id: toastId });
+      }
+    } catch (err) {
+      toast.error("An unexpected error occurred. Please try again.", {
         id: toastId,
       });
-      router.replace("/");
-    } else {
-      toast.error(String(error), {
-        id: toastId,
-      });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <>
-      <form
-        className="flex flex-col gap-4"
-        onSubmit={(e) => {
-          e.preventDefault();
+    <form
+      className="flex flex-col gap-4"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        if (!loading) {
           const formData = new FormData(e.currentTarget);
-          handleLogins(formData);
-        }}
-      >
-        <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input type="email" id="email" placeholder="Email" name="email" />
-        </div>
-        <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor="password">Password</Label>
-          <Input
-            type="password"
-            id="password"
-            placeholder="Password"
-            name="password"
-          />
-        </div>
-        <Button type="submit">Login</Button>
-      </form>
-    </>
+          await handleLogin(formData);
+        }
+      }}
+    >
+      <div className="grid w-full max-w-sm items-center gap-1.5">
+        <Label htmlFor="email">Email</Label>
+        <Input
+          type="email"
+          id="email"
+          placeholder="Email"
+          name="email"
+          required
+          autoComplete="off"
+        />
+      </div>
+      <div className="grid w-full max-w-sm items-center gap-1.5">
+        <Label htmlFor="password">Password</Label>
+        <Input
+          type="password"
+          id="password"
+          placeholder="Password"
+          name="password"
+          required
+          autoComplete="off"
+        />
+      </div>
+      <Button type="submit" disabled={loading}>
+        {loading ? "Logging in..." : "Login"}
+      </Button>
+    </form>
   );
 }

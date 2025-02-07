@@ -6,6 +6,13 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import User from "./api/models/userModel";
 
+
+const GOOGLE_CLIENT_ID  = process.env.GOOGLE_CLIENT_ID!
+const GOOGLE_CLIENT_SECRET  = process.env.GOOGLE_CLIENT_SECRET!
+const NEXTAUTH_SECRET =  process.env.NEXTAUTH_SECRET!
+const NODE_ENV = process.env.NODE_ENV!
+
+
 const getUserByEmail = async (email: string) => {
   await dbConnect();
   return User.findOne({ email }).select('+password');
@@ -31,8 +38,8 @@ const updateOrCreateGoogleUser = async (user: any) => {
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: GOOGLE_CLIENT_ID,
+      clientSecret: GOOGLE_CLIENT_SECRET,
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -76,7 +83,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           await updateOrCreateGoogleUser(user);
           return true;
         } catch (error) {
-          console.error("Google SignIn Error:", error);
+          // console.error("Google SignIn Error:", error);
           return false; // Deny login on error
         }
       }
@@ -104,14 +111,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: NEXTAUTH_SECRET,
   trustHost: true, 
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`, // You can customize the cookie name if needed
       options: {
         httpOnly: true,    // Ensures the cookie is sent only over HTTP(S)
-        secure: process.env.NODE_ENV === "production", // Use secure cookies in production (HTTPS)
+        secure: NODE_ENV === "production", // Use secure cookies in production (HTTPS)
         sameSite: "lax",   // Adjust this according to your needs (lax or strict)
       },
     }

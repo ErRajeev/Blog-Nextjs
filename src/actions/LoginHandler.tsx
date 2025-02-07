@@ -1,20 +1,20 @@
 "use server";
 
 import { signIn } from "@/app/auth";
-import { CredentialsSignin } from "next-auth";
 
 const CredentialLogin = async (email: string, password: string) => {
-  if (!email || !password) throw new Error("Please provide all field");
+  if (!email || !password)
+    return { success: false, message: "Please provide credential" };
+
   try {
-    const res = await signIn("credentials", {
+    await signIn("credentials", {
       email,
       password,
       redirect: false,
     });
-    return null;
+    return { success: true, message: "Loggin successfull." };
   } catch (error) {
-    const err = error as CredentialsSignin;
-    return err.cause;
+    return { success: false, message: "Loggin failed." };
   }
 };
 

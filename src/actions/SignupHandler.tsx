@@ -7,6 +7,8 @@ import dbConnect from "@/lib/DataBase/utils";
 import { hash } from "bcryptjs";
 import { randomInt } from "crypto";
 
+const ADMIN_SENDER_EMAIL = process.env.ADMIN_SENDER_EMAIL;
+
 type ValidationResult = {
   success: boolean;
   message: string;
@@ -17,18 +19,30 @@ const CredentialSignup = async (
   email: string,
   password: string
 ) => {
-  if (!name || !password || !email) {
-    return "Enter the Details";
+  if (!name?.trim() || !email?.trim() || !password?.trim()) {
+    return { success: false, message: "All fields are required." };
   }
 
   try {
     await dbConnect();
-    const userExists = await User.exists({ email });
-    if (userExists) return "User already exists";
-    generateAndStoreOtp(email);
-    return true;
+    const userExists = await User.exists({ email }).lean();
+    if (userExists) return { success: false, message: "User already exists." };
+
+    const isSended = await generateAndStoreOtp(email);
+
+    if (isSended) {
+      return { success: true, message: "OTP sent successfully." };
+    } else {
+      return {
+        success: false,
+        message: "Failed to send OTP. Try again later.",
+      };
+    }
   } catch (error) {
-    return "Error during signup. Please try again."; // Return string instead of an Error instance
+    return {
+      success: false,
+      message: "Error during signup. Please try again.",
+    };
   }
 };
 
@@ -38,6 +52,9 @@ const validateSignupOtp = async (
   password: string,
   otp: string
 ): Promise<ValidationResult> => {
+  if (!name?.trim() || !email?.trim() || !password?.trim() || !otp?.trim()) {
+    return { success: false, message: "Try again after some time." };
+  }
   try {
     const otpRecord = await Otp.findOne({ email, otp });
 
@@ -46,7 +63,7 @@ const validateSignupOtp = async (
     }
 
     if (otpRecord.used) {
-      return { success: false, message: "OTP already used." };
+      return { success: false, message: "OTP has already been used." };
     }
 
     if (otpRecord.expiresAt < new Date()) {
@@ -63,7 +80,7 @@ const validateSignupOtp = async (
       email,
       password: hashedPassword,
     });
-    return { success: true, message: "An Account has been created." };
+    return { success: true, message: "Account created successfully." };
   } catch (error) {
     return {
       success: false,
@@ -72,23 +89,26 @@ const validateSignupOtp = async (
   }
 };
 
-const generateAndStoreOtp = async (email: string): Promise<string> => {
-  const otp = randomInt(100000, 999999).toString(); // Generate secure 6-digit OTP
+const generateAndStoreOtp = async (email: string): Promise<boolean> => {
+  try {
+    const otp = randomInt(100000, 999999).toString(); // Generate a secure 6-digit OTP
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // Set expiration to 5 minutes
 
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // Set expiration (5 minutes)
+    // Store OTP in the database
+    await Otp.create({ email, otp, expiresAt, used: false });
 
-  // Store OTP in the database
-  await Otp.create({ email, otp, expiresAt });
+    const mailOptions = {
+      from: ADMIN_SENDER_EMAIL,
+      to: email,
+      subject: "Welcome to Blogy",
+      html: `<html><body><h3>Your OTP is: <strong>${otp}</strong></h3><p>This OTP will expire in 5 minutes.</p></body></html>`,
+    };
 
-  const mailOptions = {
-    from: process.env.ADMIN_SENDER_EMAIL,
-    to: email,
-    subject: "Wellcome to Blogy",
-    html: `<html><body><h3>Your OTP is: ${otp}</h3></body></html>`,
-  };
-
-  await transporter.sendMail(mailOptions);
-  return otp;
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    return false;
+  }
 };
 
 export { CredentialSignup, validateSignupOtp };
